@@ -22,26 +22,34 @@ class HospitalServiceImpl(IHospitalService):
                                 description TEXT)''')
         self.conn.commit()
 
+   
     def get_appointment_by_id(self, appointment_id: int) -> Appointment:
-        query = "SELECT appointmentid, patientid, doctorid, appointmentdate, description FROM appointment WHERE appointmentid = %s"
-        self.cursor.execute(query, (appointment_id,))
-        row = self.cursor.fetchone()
-        
-        if row:
-            appointment = Appointment(*row)
-            print("\n📋  Appointment Details")
-            print("─────────────────────────────────────────")
-            print("🆔 Appointment ID   : ", appointment.get_appointment_id())
-            print("🧑‍⚕️ Patient ID       : ", appointment.get_patient_id())
-            print("👨‍⚕️ Doctor ID        : ", appointment.get_doctor_id())
-            print("📅 Date             : ", appointment.get_appointment_date())
-            print("📝 Description      : ", appointment.get_description())
-            print("─────────────────────────────────────────")
+        try:
+            query = "SELECT appointmentid, patientid, doctorid, appointmentdate, description FROM appointment WHERE appointmentid = %s"
+            self.cursor.execute(query, (appointment_id,))
+            row = self.cursor.fetchone()
 
-            return appointment
-        else:
-            print("No appointment found with the given ID.")
+            if row:
+                appointment = Appointment(*row)
+                print("\n📋  Appointment Details")
+                print("─────────────────────────────────────────")
+                print("🆔 Appointment ID   : ", appointment.get_appointment_id())
+                print("🧑‍⚕️ Patient ID       : ", appointment.get_patient_id())
+                print("👨‍⚕️ Doctor ID        : ", appointment.get_doctor_id())
+                print("📅 Date             : ", appointment.get_appointment_date())
+                print("📝 Description      : ", appointment.get_description())
+                print("─────────────────────────────────────────")
+                return appointment
+            else:
+                raise PatientNumberNotFoundException(f"No appointment found with ID: {appointment_id}")
+
+        except PatientNumberNotFoundException as e:
+            print("❌", e)
             return None
+        except Exception as e:
+            print("⚠️  An unexpected error occurred while retrieving the appointment:", e)
+            return None
+
 
 
     def get_appointments_for_patient(self, patient_id: int):
